@@ -1,7 +1,6 @@
 import streamlit as st
 import pandas as pd
 from wordcloud import WordCloud
-from konlpy.tag import Okt
 import matplotlib.pyplot as plt
 from collections import Counter
 from transformers import pipeline
@@ -9,15 +8,18 @@ from transformers import pipeline
 # 데이터 읽기
 df = pd.read_csv("dream_data.csv")
 
-# 제목
 st.title("꿈 데이터 워드클라우드 & 감정 분석")
 
-# 워드클라우드 만들기
+# 꿈 내용 합치기
 text = " ".join(df["꿈 내용"])
-okt = Okt()
-words = okt.nouns(text)
+
+# 띄어쓰기 기준으로 단어 분리
+words = text.split()
+
+# 단어 빈도 계산
 word_counts = Counter(words)
 
+# 워드클라우드 생성 (한글 폰트 경로는 환경에 맞게 수정)
 wc = WordCloud(font_path='NanumGothic.ttf', background_color='white', width=800, height=400)
 cloud = wc.generate_from_frequencies(word_counts)
 
