@@ -3,11 +3,10 @@ import pandas as pd
 from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from collections import Counter
-from transformers import pipeline
 
-st.title("Dream Data Wordcloud & Sentiment Analysis")
+st.title("Dream Data Wordcloud & Simple Sentiment Analysis")
 
-# 데이터 읽기 (컬럼명이 'dream'으로 되어 있어야 함)
+# 데이터 읽기 (컬럼명이 'dream'이어야 함)
 df = pd.read_csv("dream_data.csv")
 
 # 꿈 내용 합치기
@@ -27,25 +26,20 @@ ax.imshow(cloud, interpolation='bilinear')
 ax.axis("off")
 st.pyplot(fig)
 
-# 감정 분석 (CPU 강제 지정, 모델명 명시)
-st.subheader("Sentiment Analysis of Dreams")
-classifier = pipeline(
-    "sentiment-analysis", 
-    model="distilbert-base-uncased-finetuned-sst-2-english", 
-    device=-1
-)
+# 간단 감정 분석용 단어 리스트
+positive_words = ['happy', 'good', 'free', 'love', 'peace', 'calm']
+negative_words = ['lost', 'fear', 'scared', 'stress', 'late', 'dark']
 
-results = []
-for sentence in df["dream"]:
-    if not isinstance(sentence, str) or sentence.strip() == "":
-        results.append("No Text")
-        continue
-    sentence = sentence[:256]
-    try:
-        result = classifier(sentence)
-        results.append(result[0]['label'])
-    except Exception:
-        results.append("Error")
+def sentiment_check(text):
+    text = str(text).lower()
+    if any(word in text for word in positive_words):
+        return "Positive"
+    elif any(word in text for word in negative_words):
+        return "Negative"
+    else:
+        return "Error"  # 감정 판별 불가
 
-df["Sentiment"] = results
+df["Sentiment"] = df["dream"].apply(sentiment_check)
+
+st.subheader("Simple Sentiment Analysis Result")
 st.dataframe(df)
