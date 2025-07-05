@@ -29,9 +29,13 @@ ax.imshow(cloud, interpolation='bilinear')
 ax.axis('off')
 st.pyplot(fig)
 
-# 감정 분석
+# 감정 분석 (CPU 전용)
 st.subheader("꿈 내용 감정 분석")
-classifier = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
+classifier = pipeline(
+    "sentiment-analysis",
+    model="distilbert-base-uncased-finetuned-sst-2-english",
+    device=-1  # CPU 사용 지정
+)
 
 results = []
 for sentence in df["꿈 내용"]:
