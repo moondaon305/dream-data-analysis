@@ -19,8 +19,8 @@ words = text.split()
 # 단어 빈도 계산
 word_counts = Counter(words)
 
-# 워드클라우드 생성 (한글 폰트 경로는 환경에 맞게 수정)
-wc = WordCloud(font_path='NanumGothic.ttf', background_color='white', width=800, height=400)
+# 워드클라우드 생성 (기본 폰트 사용, 한글 깨질 수 있음)
+wc = WordCloud(background_color='white', width=800, height=400)
 cloud = wc.generate_from_frequencies(word_counts)
 
 st.subheader("꿈에서 많이 나온 단어들 (워드클라우드)")
