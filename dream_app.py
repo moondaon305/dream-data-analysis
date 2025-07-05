@@ -4,19 +4,16 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 from collections import Counter
 
-st.title("Dream Data Wordcloud & Simple Sentiment Analysis")
+st.title("Dream Data Wordcloud, Sentiment & Emoji Representation")
 
-# 데이터 읽기 (컬럼명이 'dream'이어야 함)
+# 데이터 읽기
 df = pd.read_csv("dream_data.csv")
 
-# 꿈 내용 합치기
+# ----- 워드클라우드 -----
 text = " ".join(df["dream"].dropna())
-
-# 단어 빈도 계산
 words = text.split()
 word_counts = Counter(words)
 
-# 워드클라우드 생성
 wc = WordCloud(background_color='white', width=800, height=400)
 cloud = wc.generate_from_frequencies(word_counts)
 
@@ -26,7 +23,7 @@ ax.imshow(cloud, interpolation='bilinear')
 ax.axis("off")
 st.pyplot(fig)
 
-# 간단 감정 분석용 단어 리스트
+# ----- 간단 감정 분석 -----
 positive_words = ['happy', 'good', 'free', 'love', 'peace', 'calm']
 negative_words = ['lost', 'fear', 'scared', 'stress', 'late', 'dark']
 
@@ -37,9 +34,39 @@ def sentiment_check(text):
     elif any(word in text for word in negative_words):
         return "Negative"
     else:
-        return "Error"  # 감정 판별 불가
+        return "Error"
 
 df["Sentiment"] = df["dream"].apply(sentiment_check)
 
-st.subheader("Simple Sentiment Analysis Result")
-st.dataframe(df)
+# ----- 이모지 변환 -----
+def dream_to_emoji(text):
+    text = str(text).lower()
+    emojis = []
+    if "sea" in text or "ocean" in text or "water" in text:
+        emojis.append("🌊")
+    if "fly" in text or "sky" in text:
+        emojis.append("🕊️")
+    if "cat" in text:
+        emojis.append("🐈‍⬛")
+    if "dog" in text:
+        emojis.append("🐕")
+    if "rain" in text:
+        emojis.append("🌧️")
+    if "forest" in text or "tree" in text:
+        emojis.append("🌳")
+    if "school" in text:
+        emojis.append("🏫")
+    if "test" in text or "exam" in text:
+        emojis.append("📝")
+    if "fall" in text or "drop" in text:
+        emojis.append("⬇️")
+    if "chase" in text or "run" in text:
+        emojis.append("🏃")
+    
+    return " ".join(emojis) if emojis else "❓"
+
+df["Emoji"] = df["dream"].apply(dream_to_emoji)
+
+# ----- 결과 표시 -----
+st.subheader("Dream Sentiment & Emoji")
+st.dataframe(df[["dream", "Sentiment", "Emoji"]])
