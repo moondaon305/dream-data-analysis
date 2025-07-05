@@ -5,42 +5,43 @@ import matplotlib.pyplot as plt
 from collections import Counter
 from transformers import pipeline
 
+st.title("Dream Data Wordcloud & Sentiment Analysis")
+
 # 데이터 읽기
 df = pd.read_csv("dream_data.csv")
 
-st.title("꿈 데이터 워드클라우드 & 감정 분석")
-
 # 꿈 내용 합치기
-text = " ".join(df["꿈 내용"])
-
-# 띄어쓰기 기준으로 단어 분리
-words = text.split()
+text = " ".join(df["dream"])
 
 # 단어 빈도 계산
+words = text.split()
 word_counts = Counter(words)
 
-# 워드클라우드 생성 (기본 폰트 사용, 한글 깨질 수 있음)
+# 워드클라우드 생성
 wc = WordCloud(background_color='white', width=800, height=400)
 cloud = wc.generate_from_frequencies(word_counts)
 
-st.subheader("꿈에서 많이 나온 단어들 (워드클라우드)")
-fig, ax = plt.subplots(figsize=(10, 5))
+st.subheader("Common words in dreams (Wordcloud)")
+fig, ax = plt.subplots(figsize=(10,5))
 ax.imshow(cloud, interpolation='bilinear')
-ax.axis('off')
+ax.axis("off")
 st.pyplot(fig)
 
-# 감정 분석 (CPU 전용)
-st.subheader("꿈 내용 감정 분석")
-classifier = pipeline(
-    "sentiment-analysis",
-    model="distilbert-base-uncased-finetuned-sst-2-english",
-    device=-1  # CPU 사용 지정
-)
+# 감정 분석 (CPU)
+st.subheader("Sentiment Analysis of Dreams")
+classifier = pipeline("sentiment-analysis", device=-1)
 
 results = []
-for sentence in df["꿈 내용"]:
-    result = classifier(sentence)
-    results.append(result[0]['label'])
+for sentence in df["dream"]:
+    if not isinstance(sentence, str) or sentence.strip() == "":
+        results.append("No Text")
+        continue
+    sentence = sentence[:256]
+    try:
+        result = classifier(sentence)
+        results.append(result[0]['label'])
+    except Exception:
+        results.append("Error")
 
-df["감정 분석 결과"] = results
+df["Sentiment"] = results
 st.dataframe(df)
