@@ -7,11 +7,11 @@ from transformers import pipeline
 
 st.title("Dream Data Wordcloud & Sentiment Analysis")
 
-# 데이터 읽기
+# 데이터 읽기 (컬럼명이 'dream'으로 되어 있어야 함)
 df = pd.read_csv("dream_data.csv")
 
 # 꿈 내용 합치기
-text = " ".join(df["dream"])
+text = " ".join(df["dream"].dropna())
 
 # 단어 빈도 계산
 words = text.split()
@@ -27,9 +27,13 @@ ax.imshow(cloud, interpolation='bilinear')
 ax.axis("off")
 st.pyplot(fig)
 
-# 감정 분석 (CPU)
+# 감정 분석 (CPU 강제 지정, 모델명 명시)
 st.subheader("Sentiment Analysis of Dreams")
-classifier = pipeline("sentiment-analysis", device=-1)
+classifier = pipeline(
+    "sentiment-analysis", 
+    model="distilbert-base-uncased-finetuned-sst-2-english", 
+    device=-1
+)
 
 results = []
 for sentence in df["dream"]:
